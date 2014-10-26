@@ -1,10 +1,10 @@
 package fr.sewatech.demo.cdi;
 
 import fr.sewatech.demo.cdi.event.SomeBean;
-import org.jboss.weld.environment.se.StartMain;
+import org.apache.deltaspike.cdise.api.CdiContainer;
+import org.apache.deltaspike.cdise.api.CdiContainerLoader;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
 
-import javax.enterprise.inject.spi.CDI;
-import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -12,15 +12,19 @@ import java.util.logging.Logger;
  * @author Alexis Hassler
  */
 public class Start {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         Logger.getLogger("").setLevel(Level.SEVERE);
 
         System.out.println("===========================================================================================");
-        StartMain.main(args);
 
-        SomeBean obj = CDI.current().select(SomeBean.class).get();
+        CdiContainer cdiContainer = CdiContainerLoader.getCdiContainer();
+        cdiContainer.boot();
+        cdiContainer.getContextControl().startContexts();
+
+        SomeBean obj = BeanProvider.getContextualReference(SomeBean.class, false);
         System.out.println("main=" + obj);
 
-        System.exit(0);
+        cdiContainer.shutdown();
     }
+
 }
